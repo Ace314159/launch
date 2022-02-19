@@ -20,6 +20,7 @@ import os
 import platform
 import shlex
 import signal
+import sys
 import threading
 import traceback
 from typing import Any  # noqa: F401
@@ -705,6 +706,10 @@ class ExecuteProcess(Action):
         cmd = process_event_args['cmd']
         cwd = process_event_args['cwd']
         env = process_event_args['env']
+        # on Windows Python scripts are invokable through the interpreter
+        if os.name == 'nt' and cmd[0].lower().endswith('.py'):
+            cmd.insert(0, sys.executable)
+        
         if self.__log_cmd:
             self.__logger.info("process details: cmd=[{}], cwd='{}', custom_env?={}".format(
                 ', '.join(cmd), cwd, 'True' if env is not None else 'False'
