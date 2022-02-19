@@ -20,6 +20,7 @@
 import os
 import re
 import shlex
+import sys
 import threading
 from typing import Dict
 from typing import Iterable
@@ -183,6 +184,9 @@ class Executable:
         self.__final_cmd = cmd
         name = os.path.basename(cmd[0]) if self.__name is None \
             else perform_substitutions(context, self.__name)
+        # on Windows Python scripts are invokable through the interpreter
+        if os.name == 'nt' and self.__final_cmd[0].lower().endswith('.py'):
+            self.__final_cmd.insert(0, sys.executable)
         with _executable_process_counter_lock:
             global _executable_process_counter
             _executable_process_counter += 1
